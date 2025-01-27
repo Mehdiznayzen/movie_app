@@ -6,12 +6,11 @@ import { useDebounce } from 'react-use'
 import { getTrendingMovies, updateSearchCount } from './appwrite.js'
 import SerieCard from './components/SerieCard.jsx'
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_OPTIONS = {
   method: 'GET',
   headers: {
     accept: 'application/json',
-    Authorization: `Bearer ${API_KEY}`
+    Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`
   }
 }
 
@@ -24,8 +23,6 @@ const App = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [popularSeries, setPopularSeries] = useState([])
 
-  // Debounce the search term to prevent making too many API requests
-  // by waiting for the user to stop typing for 500ms
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm])
 
   const fetchMovies = async (query = '') => {
@@ -144,22 +141,24 @@ const App = () => {
         <section className="all-movies">
           <h2>All Movies</h2>
 
-          {isLoading ? (
-            <Spinner />
-          ) : errorMessage ? (
-            <p className="text-red-500">{errorMessage}</p>
-          ) : (
-            <ul>
-              {
-                movieList.map((movie) => (
-                  <MovieCard 
-                    key={movie.id} 
-                    movie={movie} 
-                  />
-                ))
-              }
-            </ul>
-          )}
+          {
+            isLoading ? (
+              <Spinner />
+            ) : errorMessage ? (
+              <p className="text-red-500">{errorMessage}</p>
+            ) : (
+              <ul>
+                {
+                  movieList.map((movie) => (
+                    <MovieCard 
+                      key={movie.id} 
+                      movie={movie} 
+                    />
+                  ))
+                }
+              </ul>
+            )
+          }
         </section>
 
         <section className="all-movies">

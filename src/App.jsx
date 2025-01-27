@@ -5,10 +5,7 @@ import MovieCard from './components/MovieCard.jsx'
 import { useDebounce } from 'react-use'
 import { getTrendingMovies, updateSearchCount } from './appwrite.js'
 
-const API_BASE_URL = 'https://api.themoviedb.org/3';
-
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-
 const API_OPTIONS = {
   method: 'GET',
   headers: {
@@ -37,8 +34,8 @@ const App = () => {
 
     try {
       const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
+        ? `${import.meta.env.VITE_TMDB_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+        : `${import.meta.env.VITE_TMDB_BASE_URL}/discover/movie?sort_by=popularity.desc`;
 
       const response = await fetch(endpoint, API_OPTIONS);
 
@@ -86,31 +83,42 @@ const App = () => {
   }, []);
 
   return (
-    <main>
+    <main
+      className='overflow-x-hidden'
+    >
       <div className="pattern"/>
 
       <div className="wrapper">
         <header>
           <img src="./hero.png" alt="Hero Banner" />
-          <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without the Hassle</h1>
+          <h1>Find <span className="text-gradient">Movies</span> You`&apos;`ll Enjoy Without the Hassle</h1>
 
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
-        {trendingMovies.length > 0 && (
-          <section className="trending">
-            <h2>Trending Movies</h2>
+        {
+          trendingMovies.length > 0 && (
+            <section className="trending">
+              <h2>Trending Movies</h2>
 
-            <ul>
-              {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
-                  <p>{index + 1}</p>
-                  <img src={movie.poster_url} alt={movie.title} />
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+              <ul>
+                {
+                  trendingMovies.map((movie, index) => (
+                    <li 
+                      key={movie.$id}
+                    >
+                      <p>{index + 1}</p>
+                      <img 
+                        src={movie.poster_url} 
+                        alt={movie.title} 
+                      />
+                    </li>
+                  ))
+                }
+              </ul>
+            </section>
+          )
+        }
 
         <section className="all-movies">
           <h2>All Movies</h2>
@@ -121,9 +129,14 @@ const App = () => {
             <p className="text-red-500">{errorMessage}</p>
           ) : (
             <ul>
-              {movieList.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
+              {
+                movieList.map((movie) => (
+                  <MovieCard 
+                    key={movie.id} 
+                    movie={movie} 
+                  />
+                ))
+              }
             </ul>
           )}
         </section>

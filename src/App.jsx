@@ -4,6 +4,7 @@ import Spinner from './components/Spinner.jsx'
 import MovieCard from './components/MovieCard.jsx'
 import { useDebounce } from 'react-use'
 import { getTrendingMovies, updateSearchCount } from './appwrite.js'
+import SerieCard from './components/SerieCard.jsx'
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_OPTIONS = {
@@ -17,12 +18,11 @@ const API_OPTIONS = {
 const App = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [searchTerm, setSearchTerm] = useState('');
-
   const [movieList, setMovieList] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [popularSeries, setPopularSeries] = useState([])
 
   // Debounce the search term to prevent making too many API requests
   // by waiting for the user to stop typing for 500ms
@@ -74,6 +74,23 @@ const App = () => {
     }
   }
 
+  const fetchPopularSeries = async () => {
+    try {
+      const endpoint = 'https://api.themoviedb.org/3/tv/popular?language=en-US&page=1'
+      const response = await fetch(endpoint, API_OPTIONS)
+
+      if(!response.ok){
+        throw new Error('Failed to fetch series !!');
+      }
+    
+      const data = await response.json();
+
+      setPopularSeries(data.results || []);
+    } catch (error) {
+      console.error(`Error fetching popular series : ${error}`);
+    }
+  }
+
   useEffect(() => {
     fetchMovies(debouncedSearchTerm);
   }, [debouncedSearchTerm]);
@@ -81,6 +98,10 @@ const App = () => {
   useEffect(() => {
     loadTrendingMovies();
   }, []);
+
+  useEffect(() => {
+    fetchPopularSeries()
+  }, [])
 
   return (
     <main
@@ -139,6 +160,29 @@ const App = () => {
               }
             </ul>
           )}
+        </section>
+
+        <section className="all-movies">
+          <h2 className='mt-4'>Popular Series</h2>
+
+          {
+            isLoading ? (
+              <Spinner />
+            ) : errorMessage ? (
+              <p className="text-red-500">{errorMessage}</p>
+            ) : (
+              <ul>
+                {
+                  popularSeries.map((serie) => (
+                    <SerieCard
+                      key={serie.id} 
+                      serie={serie} 
+                    />
+                  ))
+                }
+              </ul>
+            )
+          }
         </section>
       </div>
     </main>
